@@ -13,6 +13,14 @@ export abstract class Option<T> {
             : new Option.Some(value);
     }
 
+    public static some<T>(value: T): Option<T> {
+        return new Option.Some(value);
+    }
+
+    public static none(): Option<any> {
+        return new Option.None();
+    }
+
     public unwrap<T>(defaultValue: T): T {
         if (this instanceof Option.Some) {
             return this.value;

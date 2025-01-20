@@ -11,6 +11,14 @@ export abstract class Result<T, K> {
         }
     }
 
+    public static ok<T>(value: T): Result<T, any> {
+        return new Result.Ok(value);
+    }
+
+    public static error<K>(detail: K): Result<any, K> {
+        return new Result.Error(detail);
+    }
+
     public static from<T, K>(operation: () => T): Result<T, K> {
         try {
             return new Result.Ok(operation());
