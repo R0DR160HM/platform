@@ -1,4 +1,4 @@
-import { result, Result } from "./result";
+import { result } from "./result";
 
 export interface IActorOptions<K> {
     emit: (value: K) => void
@@ -44,7 +44,7 @@ export class Actor<T, K> {
         this.listeners.splice(this.listeners.indexOf(listener), 1);
     }
 
-    public send(message: T): Result<true, ActorError> {
+    public send(message: T): result.Result<true, ActorError> {
         message = window.structuredClone(message)
         if (this.closed) {
             return result.error(new ActorClosed(this as any))
@@ -53,7 +53,7 @@ export class Actor<T, K> {
         return result.ok(true)
     }
 
-    public call(message: T, timeout: number): Promise<Result<K, ActorError>> {
+    public call(message: T, timeout: number): Promise<result.Result<K, ActorError>> {
         return new Promise(resolve => {
             if (this.closed) {
                 return resolve(result.error(new ActorClosed(this as any)));
