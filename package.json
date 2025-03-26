@@ -10,7 +10,7 @@
     ],
     "scripts": {
         "build": "tsup",
-        "prepare": "npm run build"
+        "prepare": "npm run build",
         "test": "jest --coverage"
     },
     "repository": {
