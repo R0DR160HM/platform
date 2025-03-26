@@ -36,6 +36,14 @@ export namespace result {
         }
     }
 
+    export function unwrap<T>(result: Result<T, any>, defaultValue: T): T {
+        const [value, error] = result;
+        if (error !== null) {
+            return defaultValue;
+        }
+        return value!;
+    }
+
     export function map<T, K, T2>(result: Result<T, K>, callback: (value: T) => T2): Result<T2, K> {
         const [value, error] = result;
         if (error !== null) {
