@@ -1,37 +1,63 @@
-export abstract class Result<T, K> {
+export namespace result {
 
-    public static Ok = class <T> extends Result<T, never> {
-        constructor(public readonly value: T) {
-            super();
-        }
-    }
-    public static Error = class <K> extends Result<never, K> {
-        constructor(public readonly detail: K) {
-            super();
-        }
-    }
+    export type Success<T> = [T, null];
+    export type Failure<K> = [null, K];
+    export type Result<T, K> = Success<T> | Failure<K>;
 
-    public static ok<T>(value: T): Result<T, any> {
-        return new Result.Ok(value);
+    export type ErrorDecoder<K> = (error: unknown) => K;
+
+    
+    export function ok<T>(value: T): Success<T> {
+        return [value, null];
     }
 
-    public static error<K>(detail: K): Result<any, K> {
-        return new Result.Error(detail);
+    export function error<K>(detail: K): Failure<K> {
+        return [null, detail];
     }
 
-    public static from<T, K>(operation: () => T): Result<T, K> {
+    // --------------------------
+
+    export async function async<T, K>(promise: Promise<T>, errorDecoder: ErrorDecoder<K>): Promise<Result<T, K>> {
         try {
-            return new Result.Ok(operation());
-        } catch (error) {
-            return new Result.Error(error);
+            const resp = await promise;
+            return [resp, null];
+        } catch (err: any) {
+            err = errorDecoder(err);
+            return [null, err];
         }
     }
 
-    public unwrap<T>(defaultValue: T): T {
-        if (this instanceof Result.Ok) {
-            return this.value;
+    export function wrap<T, K>(op: () => T, errorDecoder: ErrorDecoder<K>): Result<T, K> {
+        try {
+            return [op(), null];
+        } catch (err: any) {
+            err = errorDecoder(err)
+            return [null, err]
         }
-        return defaultValue;
+    }
+
+    export function map<T, K, T2>(result: Result<T, K>, callback: (value: T) => T2): Result<T2, K> {
+        const [value, error] = result;
+        if (error !== null) {
+            return [null, error]
+        }
+        return [callback(value!), null];
+    }
+
+    export function mapError<T, K, K2>(result: Result<T, K>, callback: (detail: K) => K2): Result<T, K2> {
+        const [value, error] = result;
+        if (error !== null) {
+            return [null, callback(error)]
+        }
+        return [value!, null]
+    }
+
+    export function tryWith<T, K, T2>(result: Result<T, K>, callback: (value: T) => Result<T2, K>): Result<T2, K> {
+        const [value, error] = result;
+        if (error !== null) {
+            return [null, error];    
+        }
+        return callback(value!)
     }
 
 }
