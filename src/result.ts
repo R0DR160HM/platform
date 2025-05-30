@@ -1,11 +1,9 @@
+export type Success<T> = [T, null];
+export type Failure<K> = [null, K];
+export type Result<T, K> = Success<T> | Failure<K>;
+export type ErrorDecoder<K> = (error: unknown) => K;
+
 export namespace result {
-
-    export type Success<T> = [T, null];
-    export type Failure<K> = [null, K];
-    export type Result<T, K> = Success<T> | Failure<K>;
-
-    export type ErrorDecoder<K> = (error: unknown) => K;
-
     
     export function ok<T>(value: T): Success<T> {
         return [value, null];
